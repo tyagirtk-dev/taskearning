@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ config.APP_NAME }} – Earn Money Online</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" />
+  <style>
+    .hero { background: linear-gradient(135deg,#1e1b4b 0%,#4f46e5 100%); min-height: 90vh; display:flex;align-items:center; }
+    .hero-title { font-family:'Space Grotesk',sans-serif; font-size: clamp(2.2rem,5vw,3.8rem); font-weight:800; color:#fff; line-height:1.15; }
+    .hero-sub   { color:#c7d2fe; font-size:1.1rem; max-width:520px; }
+    .hero-badge { display:inline-block; background:rgba(255,255,255,.12); color:#a5b4fc; border:1px solid rgba(165,180,252,.3); border-radius:999px; padding:.35rem 1rem; font-size:.8rem; font-weight:600; margin-bottom:1.25rem; }
+    .how-card   { border-radius:14px; padding:2rem 1.5rem; height:100%; border:1px solid #e2e8f0; }
+    .how-num    { font-family:'Space Grotesk',sans-serif; font-size:3rem; font-weight:800; color:#eef2ff; line-height:1; }
+    .task-preview { border-radius:14px; border:1px solid #e2e8f0; overflow:hidden; transition:transform .18s,box-shadow .18s; }
+    .task-preview:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(0,0,0,.1); }
+    .footer { background:#1e1b4b; color:#a5b4fc; }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="navbar navbar-expand-lg" style="background:#1e1b4b">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <span style="width:34px;height:34px;background:#4f46e5;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </span>
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#fff;font-size:1.1rem;">{{ config.APP_NAME }}</span>
+    </a>
+    <div class="ms-auto d-flex gap-2">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-sm">Sign In</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <div class="hero-badge"><i class="bi bi-stars me-1"></i> Real Money, Real Tasks</div>
+        <h1 class="hero-title">Complete Tasks.<br>Earn Real Money.</h1>
+        <p class="hero-sub mt-3 mb-4">
+          Join thousands earning daily by completing simple online tasks — surveys, social media,
+          app reviews, and more. Withdraw directly to your UPI.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg fw-semibold px-4">
+            <i class="bi bi-rocket-takeoff me-2"></i>Start Earning Free
+          </a>
+          <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg px-4">Sign In</a>
+        </div>
+        <div class="d-flex gap-4 mt-5">
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">{{ user_count }}+</div>
+            <div style="color:#c7d2fe;font-size:.8rem;">Active Members</div>
+          </div>
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">{{ task_count }}+</div>
+            <div style="color:#c7d2fe;font-size:.8rem;">Tasks Available</div>
+          </div>
+          <div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:800;color:#fff;">₹10</div>
+            <div style="color:#c7d2fe;font-size:.8rem;">Referral Bonus</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+        <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:1.5rem;max-width:340px;width:100%">
+          {% for task in featured_tasks %}
+          <div style="background:rgba(255,255,255,.1);border-radius:12px;padding:1rem;margin-bottom:.75rem;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="color:#fff;font-weight:600;font-size:.9rem;">{{ task.title | truncate(28) }}</div>
+              <div style="color:#a5b4fc;font-size:.75rem;">{{ task.category | capitalize }}</div>
+            </div>
+            <span style="background:#059669;color:#fff;border-radius:999px;padding:.2rem .75rem;font-size:.8rem;font-weight:700;">
+              ₹{{ '%.0f'|format(task.reward) }}
+            </span>
+          </div>
+          {% endfor %}
+          {% if not featured_tasks %}
+          <div style="text-align:center;color:#a5b4fc;padding:2rem;">Tasks loading...</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;">How It Works</h2>
+      <p class="text-muted">Three simple steps to start earning</p>
+    </div>
+    <div class="row g-4">
+      {% for step in [
+        ('Register Free','Create your account in under 2 minutes. No credit card required.','person-plus-fill','#4f46e5'),
+        ('Pick a Task','Browse available tasks and choose ones that suit you.','list-task','#059669'),
+        ('Submit & Earn','Complete the task, upload proof, and get paid on approval.','cash-coin','#d97706')
+      ] %}
+      <div class="col-md-4">
+        <div class="how-card text-center">
+          <div class="how-num">0{{ loop.index }}</div>
+          <div style="width:56px;height:56px;background:{{ step[3] }}1a;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:1rem auto;">
+            <i class="bi bi-{{ step[2] }} fs-4" style="color:{{ step[3] }}"></i>
+          </div>
+          <h5 style="font-family:'Space Grotesk',sans-serif;font-weight:700;">{{ step[0] }}</h5>
+          <p class="text-muted small mb-0">{{ step[1] }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="background:linear-gradient(135deg,#4f46e5,#7c3aed);padding:5rem 0;">
+  <div class="container text-center">
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:800;color:#fff;font-size:2.2rem;">
+      Ready to start earning?
+    </h2>
+    <p style="color:#c7d2fe;font-size:1.05rem;margin-top:.75rem;">
+      Join for free today and earn your first ₹{{ config.REFERRAL_BONUS|int }} with our referral bonus.
+    </p>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg fw-semibold mt-3 px-5">
+      Create Free Account
+    </a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer py-4">
+  <div class="container text-center">
+    <p class="mb-1" style="font-size:.85rem;">
+      &copy; {{ 2025 }} {{ config.APP_NAME }}. All rights reserved.
+    </p>
+    <div class="d-flex justify-content-center gap-3 mt-2" style="font-size:.8rem;">
+      <a href="{{ url_for('auth.login') }}" style="color:#a5b4fc;">Sign In</a>
+      <a href="{{ url_for('auth.register') }}" style="color:#a5b4fc;">Register</a>
+      <a href="{{ url_for('admin.login') }}" style="color:#a5b4fc;">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

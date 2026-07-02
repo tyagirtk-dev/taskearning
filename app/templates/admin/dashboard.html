@@ -1,0 +1,119 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Admin Dashboard – {{ config.APP_NAME }}{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row g-3 mt-1">
+
+  <div class="col-6 col-xl-3">
+    <div class="stat-card stat-card--blue h-100">
+      <div class="stat-card__icon"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-card__value">{{ stats.total_users }}</div>
+      <div class="stat-card__label">Users</div>
+      <div class="stat-card__sub">{{ stats.verified_users }} verif.</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card stat-card--green h-100">
+      <div class="stat-card__icon"><i class="bi bi-list-task"></i></div>
+      <div class="stat-card__value">{{ stats.total_tasks }}</div>
+      <div class="stat-card__label">Tasks</div>
+      <div class="stat-card__sub">{{ stats.active_tasks }} active</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card stat-card--orange h-100">
+      <div class="stat-card__icon"><i class="bi bi-hourglass-split"></i></div>
+      <div class="stat-card__value">{{ stats.pending_submissions }}</div>
+      <div class="stat-card__label">Pending</div>
+      <div class="stat-card__sub">{{ stats.approved_submissions }} appr.</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card stat-card--purple h-100">
+      <div class="stat-card__icon"><i class="bi bi-cash-stack"></i></div>
+      <div class="stat-card__value">₹{{ '%.0f'|format(stats.total_payout) }}</div>
+      <div class="stat-card__label">Payouts</div>
+      <div class="stat-card__sub">{{ stats.pending_withdrawals }} pending</div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body d-grid gap-2 d-md-flex">
+        <span class="fw-semibold align-self-center me-md-2">Quick Actions:</span>
+        <a href="{{ url_for('admin.task_create') }}" class="btn btn-primary py-2">
+          <i class="bi bi-plus-circle me-1"></i>New Task
+        </a>
+        <a href="{{ url_for('admin.submissions') }}" class="btn btn-warning text-dark py-2">
+          <i class="bi bi-eye me-1"></i>Review ({{ stats.pending_submissions }})
+        </a>
+        <a href="{{ url_for('admin.withdrawals') }}" class="btn btn-outline-secondary py-2">
+          <i class="bi bi-cash me-1"></i>Withdrawals
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-transparent border-0 d-flex justify-content-between pt-3">
+        <h6 class="mb-0 fw-bold">Recent Users</h6>
+        <a href="{{ url_for('admin.users') }}">View all</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <tbody>
+              {% for user in recent_users %}
+              <tr>
+                <td class="ps-3">
+                  <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="text-decoration-none fw-medium">
+                    {{ user.name }}
+                  </a>
+                  <div class="small text-muted">{{ user.email }}</div>
+                </td>
+                <td class="text-end pe-3">
+                  {% if user.is_banned %}<span class="badge bg-danger">Banned</span>
+                  {% elif user.is_email_verified %}<span class="badge bg-success">Verified</span>
+                  {% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-transparent border-0 d-flex justify-content-between pt-3">
+        <h6 class="mb-0 fw-bold">Pending Submissions</h6>
+        <a href="{{ url_for('admin.submissions') }}">View all</a>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <tbody>
+              {% for sub in recent_submissions %}
+              <tr>
+                <td class="ps-3">
+                  <div class="fw-medium">{{ sub.user.name }}</div>
+                  <div class="small text-muted">{{ sub.task.title | truncate(20) }}</div>
+                </td>
+                <td class="text-end pe-3">
+                  <a href="{{ url_for('admin.review_submission', sub_id=sub.id) }}" class="btn btn-sm btn-outline-primary px-3">Review</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

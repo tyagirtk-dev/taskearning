@@ -1,0 +1,56 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Submissions – Admin{% endblock %}
+{% block page_title %}Submission Management{% endblock %}
+
+{% block content %}
+<div class="mt-2">
+  <div class="d-flex gap-2 mb-4 flex-wrap">
+    {% for s, label in [('pending','Pending'),('approved','Approved'),('rejected','Rejected'),('','All')] %}
+    <a href="{{ url_for('admin.submissions', status=s) }}"
+       class="btn btn-sm {{ 'btn-primary' if current_status == s else 'btn-outline-secondary' }}">
+      {{ label }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">User</th>
+            <th>Task</th>
+            <th>Reward</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in submissions %}
+          <tr>
+            <td class="ps-4 fw-medium">{{ sub.user.name }}</td>
+            <td class="text-muted small">{{ sub.task.title | truncate(30) }}</td>
+            <td class="text-success fw-semibold">₹{{ '%.2f'|format(sub.task.reward) }}</td>
+            <td>
+              <span class="badge {% if sub.status=='approved' %}bg-success{% elif sub.status=='rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                {{ sub.status | capitalize }}
+              </span>
+            </td>
+            <td class="text-muted small">{{ sub.submitted_at.strftime('%d %b %Y') }}</td>
+            <td>
+              <a href="{{ url_for('admin.review_submission', sub_id=sub.id) }}"
+                 class="btn btn-sm btn-outline-primary">
+                {{ 'Review' if sub.status == 'pending' else 'View' }}
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No submissions found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

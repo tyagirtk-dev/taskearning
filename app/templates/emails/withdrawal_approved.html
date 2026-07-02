@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>body{margin:0;padding:0;background:#f1f5f9;font-family:Arial,sans-serif;color:#1e293b}.wrapper{max-width:540px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden}.header{background:linear-gradient(135deg,#059669,#10b981);padding:32px;text-align:center}.body{padding:32px}.footer{background:#f8fafc;padding:20px;text-align:center;color:#94a3b8;font-size:12px}</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header"><h1 style="margin:0;color:#fff;font-size:20px;font-weight:700">💸 Withdrawal Processed!</h1></div>
+  <div class="body">
+    <p>Hi <strong>{{ user.name }}</strong>,</p>
+    <p>Your withdrawal of <strong>₹{{ '%.2f'|format(withdrawal.amount) }}</strong> to UPI <strong>{{ withdrawal.upi_id }}</strong> has been approved and processed.</p>
+    {% if withdrawal.transaction_ref %}
+    <div style="background:#d1fae5;border-radius:10px;padding:14px;margin:16px 0">
+      <strong>Transaction Reference:</strong><br>
+      <code style="font-size:15px;color:#059669">{{ withdrawal.transaction_ref }}</code>
+    </div>
+    {% endif %}
+    <p style="color:#64748b;font-size:13px">Funds usually arrive within 24 hours. Contact support if not received.</p>
+  </div>
+  <div class="footer">© TaskEarner</div>
+</div>
+</body></html>

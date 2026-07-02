@@ -1,0 +1,175 @@
+{% extends "user/base_user.html" %}
+{% block title %}{{ task.title }} – {{ config.APP_NAME }}{% endblock %}
+{% block page_title %}Task Detail{% endblock %}
+
+{% block content %}
+<div class="row g-4 mt-1">
+
+  <!-- Task Info -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      {% if task.thumbnail %}
+      <img src="{{ url_for('static', filename='uploads/proofs/' + task.thumbnail) }}"
+           class="card-img-top rounded-top-3" style="max-height:280px;object-fit:cover" alt="{{ task.title }}">
+      {% endif %}
+      <div class="card-body p-4">
+        <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+          <span class="badge bg-primary bg-opacity-10 text-primary">{{ task.category | capitalize }}</span>
+          <span class="badge bg-success bg-opacity-10 text-success">
+            <i class="bi bi-currency-rupee"></i>{{ '%.2f'|format(task.reward) }} reward
+          </span>
+          <span class="badge bg-secondary bg-opacity-10 text-secondary">
+            <i class="bi bi-clock me-1"></i>{{ task.time_limit_hours }}h to complete
+          </span>
+        </div>
+
+        <h4 class="fw-semibold mb-3">{{ task.title }}</h4>
+        <p class="text-muted">{{ task.description }}</p>
+
+        <hr />
+
+        <h6 class="fw-semibold mb-3"><i class="bi bi-list-ol me-2"></i>Instructions</h6>
+        <div class="instructions-body">
+          {{ task.instructions | nl2br | safe }}
+        </div>
+
+        {% if task.external_url %}
+        <a href="{{ task.external_url }}" target="_blank" rel="noopener"
+           class="btn btn-outline-primary mt-3">
+          <i class="bi bi-box-arrow-up-right me-1"></i>Visit Task Link
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Submission Form -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm sticky-top" style="top:1.5rem">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h6 class="fw-semibold mb-0">
+          {% if existing %}
+            Your Submission
+          {% else %}
+            Submit Proof
+          {% endif %}
+        </h6>
+      </div>
+      <div class="card-body px-4 pb-4">
+
+        {% if existing %}
+          <!-- Already submitted -->
+          <div class="text-center py-3">
+            <div class="mb-3">
+              <span class="badge rounded-pill fs-6 px-4 py-2
+                {% if existing.status == 'approved' %}bg-success
+                {% elif existing.status == 'rejected' %}bg-danger
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ existing.status | upper }}
+              </span>
+            </div>
+            {% if existing.proof_screenshot %}
+            <img src="{{ url_for('static', filename='uploads/proofs/' + existing.proof_screenshot) }}"
+                 class="img-fluid rounded-3 mb-3" style="max-height:200px;object-fit:cover"
+                 alt="Proof screenshot">
+            {% endif %}
+            {% if existing.rejection_reason %}
+            <div class="alert alert-danger text-start small">
+              <strong>Reason:</strong> {{ existing.rejection_reason }}
+            </div>
+            {% endif %}
+            <p class="text-muted small">Submitted {{ existing.submitted_at.strftime('%d %b %Y %H:%M') }}</p>
+            {% if existing.status == 'approved' %}
+            <div class="alert alert-success small">
+              <i class="bi bi-check2-circle me-1"></i>
+              ₹{{ '%.2f'|format(existing.reward_paid) }} credited to your wallet!
+            </div>
+            {% endif %}
+          </div>
+
+        {% elif not task.is_available %}
+          <div class="text-center py-3 text-muted">
+            <i class="bi bi-x-circle fs-2 d-block mb-2 text-danger opacity-50"></i>
+            This task is no longer accepting submissions.
+          </div>
+
+        {% else %}
+          <!-- Submit form -->
+          <form method="POST" enctype="multipart/form-data">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+              {{ form.proof_text.label(class="form-label fw-medium") }}
+              {{ form.proof_text(class="form-control", rows=4,
+                 placeholder="Briefly describe how you completed the task…") }}
+              {% for err in form.proof_text.errors %}
+              <div class="invalid-feedback d-block">{{ err }}</div>
+              {% endfor %}
+            </div>
+
+            {% if task.requires_proof %}
+            <div class="mb-4">
+              {{ form.proof_screenshot.label(class="form-label fw-medium") }}
+              <div class="upload-zone" id="uploadZone">
+                <input type="file" name="proof_screenshot" id="proof_screenshot"
+                       accept="image/*" class="upload-input">
+                <div class="upload-placeholder" id="uploadPlaceholder">
+                  <i class="bi bi-cloud-upload fs-2 text-primary opacity-50"></i>
+                  <p class="mb-0 small text-muted mt-2">Click or drag image here<br>Max 5 MB</p>
+                </div>
+                <img id="previewImg" class="upload-preview d-none" alt="Preview">
+              </div>
+              {% for err in form.proof_screenshot.errors %}
+              <div class="invalid-feedback d-block">{{ err }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary w-100">
+              <i class="bi bi-send me-1"></i>Submit Task
+            </button>
+          </form>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const zone = document.getElementById('uploadZone');
+  const input = document.getElementById('proof_screenshot');
+  const placeholder = document.getElementById('uploadPlaceholder');
+  const preview = document.getElementById('previewImg');
+  if (!zone) return;
+
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) {
+      input.files = e.dataTransfer.files;
+      showPreview(e.dataTransfer.files[0]);
+    }
+  });
+  input.addEventListener('change', () => { if (input.files.length) showPreview(input.files[0]); });
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      preview.src = e.target.result;
+      preview.classList.remove('d-none');
+      placeholder.classList.add('d-none');
+    };
+    reader.readAsDataURL(file);
+  }
+})();
+</script>
+{% endblock %}

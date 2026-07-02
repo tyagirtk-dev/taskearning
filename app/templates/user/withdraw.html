@@ -1,0 +1,44 @@
+{% extends "user/base_user.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h3 class="card-title mb-4 fw-bold text-center">Withdraw Funds</h3>
+          
+          <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+              {{ form.amount.label(class="form-label fw-medium") }}
+              <div class="input-group">
+                <span class="input-group-text">₹</span>
+                {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""),
+                   placeholder="Enter amount", 
+                   min=min_wd if min_wd is defined else 1, 
+                   max=[(max_wd if max_wd is defined else 10000), (current_user.wallet_balance | default(0))] | min) }}
+              </div>
+              {% for e in form.amount.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+            
+            <div class="mb-4">
+              {{ form.upi_id.label(class="form-label fw-medium") }}
+              {{ form.upi_id(class="form-control" + (" is-invalid" if form.upi_id.errors else ""),
+                 placeholder="yourname@upi") }}
+              {% for e in form.upi_id.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="d-grid">
+              {{ form.submit(class="btn btn-primary btn-lg fw-medium") }}
+            </div>
+          </form>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

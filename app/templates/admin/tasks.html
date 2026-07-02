@@ -1,0 +1,69 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Tasks – Admin{% endblock %}
+{% block page_title %}Task Management{% endblock %}
+
+{% block content %}
+<div class="mt-2">
+  <div class="mb-4">
+    <a href="{{ url_for('admin.task_create') }}" class="btn btn-primary">
+      <i class="bi bi-plus-circle me-1"></i>New Task
+    </a>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Title</th>
+            <th>Category</th>
+            <th>Reward</th>
+            <th>Submissions</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+          <tr>
+            <td class="ps-4 fw-medium">{{ task.title | truncate(40) }}</td>
+            <td class="text-muted small">{{ task.category | capitalize }}</td>
+            <td class="text-success fw-semibold">₹{{ '%.2f'|format(task.reward) }}</td>
+            <td class="text-muted small">{{ task.submission_count }} / {{ task.max_submissions }}</td>
+            <td>
+              {% if task.is_active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="action-bar">
+                <a href="{{ url_for('admin.task_edit', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="POST" action="{{ url_for('admin.task_toggle', task_id=task.id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-sm btn-outline-secondary" title="{{ 'Deactivate' if task.is_active else 'Activate' }}">
+                    <i class="bi bi-{{ 'pause' if task.is_active else 'play' }}"></i>
+                  </button>
+                </form>
+                <form method="POST" action="{{ url_for('admin.task_delete', task_id=task.id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger"
+                          data-confirm="Delete '{{ task.title }}'? This cannot be undone.">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">No tasks yet. Create one!</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

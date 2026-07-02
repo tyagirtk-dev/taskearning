@@ -1,0 +1,75 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Users – Admin{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="mt-2">
+  <!-- Search form: Full width on mobile -->
+  <form class="d-flex gap-2 mb-4" method="GET">
+    <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search name or email…">
+    <button type="submit" class="btn btn-primary px-3"><i class="bi bi-search"></i></button>
+    {% if q %}<a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+  </form>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light d-none d-md-table-header-group">
+          <tr>
+            <th class="ps-4">User</th>
+            <th>Balance</th>
+            <th>Tasks</th>
+            <th>Status</th>
+            <th class="d-none d-lg-table-cell">Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td class="ps-3 ps-md-4">
+              <div class="fw-bold">{{ user.name }}</div>
+              <div class="small text-muted">{{ user.email }}</div>
+            </td>
+            <td class="fw-semibold text-success">₹{{ '%.0f'|format(user.wallet_balance) }}</td>
+            <td>{{ user.completed_tasks }}</td>
+            <td>
+              {% if user.is_banned %}
+                <span class="badge bg-danger">Banned</span>
+              {% elif user.is_email_verified %}
+                <span class="badge bg-success">Verified</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% endif %}
+            </td>
+            <td class="text-muted small d-none d-lg-table-cell">{{ user.created_at.strftime('%d %b %Y') }}</td>
+            <td>
+              <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-sm btn-outline-primary px-3">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" class="text-center py-5 text-muted">No users found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination.pages > 1 %}
+  <nav class="mt-4">
+    <ul class="pagination pagination-sm justify-content-center">
+      {% if pagination.has_prev %}
+      <li class="page-item"><a class="page-link" href="{{ url_for('admin.users', page=pagination.prev_num, q=q) }}">«</a></li>
+      {% endif %}
+      <li class="page-item active"><span class="page-link">{{ pagination.page }}</span></li>
+      {% if pagination.has_next %}
+      <li class="page-item"><a class="page-link" href="{{ url_for('admin.users', page=pagination.next_num, q=q) }}">»</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}{{ user.name }} – Admin{% endblock %}
+{% block page_title %}User Detail{% endblock %}
+
+{% block content %}
+<div class="row g-4 mt-1">
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm text-center p-4">
+      <img src="{{ url_for('static', filename='uploads/profiles/' + user.profile_pic) }}"
+           class="rounded-circle mx-auto mb-3" style="width:80px;height:80px;object-fit:cover"
+           onerror="this.src='{{ url_for('static', filename='img/default.png') }}'">
+      <h5 class="fw-bold mb-0">{{ user.name }}</h5>
+      <p class="text-muted small">{{ user.email }}</p>
+      <div class="d-flex justify-content-around border-top pt-3 mt-2">
+        <div><div class="fw-bold text-success">₹{{ '%.2f'|format(user.wallet_balance) }}</div><div class="text-muted" style="font-size:.7rem">Balance</div></div>
+        <div><div class="fw-bold text-primary">{{ user.completed_tasks }}</div><div class="text-muted" style="font-size:.7rem">Tasks</div></div>
+        <div><div class="fw-bold">{{ user.referral_count }}</div><div class="text-muted" style="font-size:.7rem">Referrals</div></div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mt-3 p-3">
+      <div class="mb-2 small"><strong>Joined:</strong> {{ user.created_at.strftime('%d %b %Y') }}</div>
+      <div class="mb-2 small"><strong>Last Login:</strong> {{ user.last_login.strftime('%d %b %Y') if user.last_login else '—' }}</div>
+      <div class="mb-3 small"><strong>Referral Code:</strong> <code>{{ user.referral_code }}</code></div>
+
+      {% if user.is_banned %}
+      <form method="POST" action="{{ url_for('admin.unban_user', user_id=user.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-success w-100 btn-sm">
+          <i class="bi bi-unlock me-1"></i>Unban User
+        </button>
+      </form>
+      {% else %}
+      <form method="POST" action="{{ url_for('admin.ban_user', user_id=user.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="ban_reason" class="form-control form-control-sm mb-2" placeholder="Ban reason…" required>
+        <button type="submit" class="btn btn-danger w-100 btn-sm"
+                data-confirm="Ban this user?">
+          <i class="bi bi-slash-circle me-1"></i>Ban User
+        </button>
+      </form>
+      {% endif %}
+
+      {% if not user.is_email_verified %}
+      <form method="POST" action="{{ url_for('admin.verify_user', user_id=user.id) }}" class="mt-2">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="btn btn-outline-success w-100 btn-sm">
+          <i class="bi bi-check2-circle me-1"></i>Manually Verify Email
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-transparent border-0 pt-3 px-4"><h6 class="fw-semibold mb-0">Recent Submissions</h6></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr><th class="ps-4">Task</th><th>Reward</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for sub in submissions %}
+            <tr>
+              <td class="ps-4 small fw-medium">{{ sub.task.title | truncate(35) }}</td>
+              <td class="text-success small">₹{{ '%.2f'|format(sub.task.reward) }}</td>
+              <td><span class="badge {% if sub.status=='approved' %}bg-success{% elif sub.status=='rejected' %}bg-danger{% else %}bg-warning text-dark{% endif %}">{{ sub.status|capitalize }}</span></td>
+              <td class="text-muted small">{{ sub.submitted_at.strftime('%d %b') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No submissions.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-0 pt-3 px-4"><h6 class="fw-semibold mb-0">Wallet Transactions</h6></div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light"><tr><th class="ps-4">Description</th><th>Amount</th><th>Balance After</th><th>Date</th></tr></thead>
+          <tbody>
+            {% for tx in transactions %}
+            <tr>
+              <td class="ps-4 small">{{ tx.description | truncate(40) }}</td>
+              <td class="fw-semibold {{ 'text-success' if tx.amount > 0 else 'text-danger' }}">{{ '+' if tx.amount > 0 else '' }}₹{{ '%.2f'|format(tx.amount|abs) }}</td>
+              <td class="text-muted small">₹{{ '%.2f'|format(tx.balance_after) }}</td>
+              <td class="text-muted small">{{ tx.created_at.strftime('%d %b') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">No transactions.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "user/base_user.html" %}
+{% block title %}Withdraw – {{ config.APP_NAME }}{% endblock %}
+{% block page_title %}Withdraw Funds{% endblock %}
+
+{% block content %}
+<div class="row g-4 mt-1">
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3" style="background:#d1fae5">
+          <i class="bi bi-wallet2 fs-3 text-success"></i>
+          <div>
+            <div class="text-muted small">Available to withdraw</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:#065f46">
+              ₹{{ '%.2f'|format(current_user.wallet_balance) }}
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-info rounded-3 small mb-4">
+          <i class="bi bi-info-circle me-1"></i>
+          Min: <strong>₹{{ min_wd|int }}</strong> &nbsp;|&nbsp; Max: <strong>₹{{ max_wd|int }}</strong> per request.
+          Payments processed within 24–48 hours.
+        </div>
+
+        <form method="POST">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.amount.label(class="form-label fw-medium") }}
+            <div class="input-group">
+              <span class="input-group-text">₹</span>
+              {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""),
+                 placeholder="Enter amount", min=min_wd, max=min(max_wd, current_user.wallet_balance)) }}
+            </div>
+            {% for e in form.amount.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="mb-4">
+            {{ form.upi_id.label(class="form-label fw-medium") }}
+            {{ form.upi_id(class="form-control" + (" is-invalid" if form.upi_id.errors else ""),
+               placeholder="yourname@upi") }}
+            {% for e in form.upi_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary w-100 fw-semibold"
+                  {% if current_user.wallet_balance < min_wd %}disabled{% endif %}>
+            <i class="bi bi-send me-1"></i>Request Withdrawal
+          </button>
+          {% if current_user.wallet_balance < min_wd %}
+          <div class="text-center text-muted small mt-2">
+            Need ₹{{ '%.2f'|format(min_wd - current_user.wallet_balance) }} more to reach minimum.
+          </div>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-4 px-4">
+        <h6 class="fw-semibold mb-0">Recent Requests</h6>
+        <a href="{{ url_for('user.withdrawal_history') }}" class="btn btn-link btn-sm p-0">View all</a>
+      </div>
+      <div class="card-body p-0">
+        {% set recent = current_user.withdrawal_requests.order_by(none()).limit(5).all() if false else [] %}
+        <div class="text-center py-4 text-muted small">
+          <a href="{{ url_for('user.withdrawal_history') }}">View withdrawal history →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

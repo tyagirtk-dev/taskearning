@@ -1,0 +1,56 @@
+/* admin.css – Professional Admin Panel Styles */
+
+:root {
+  --admin-bg: #1a1a2e;
+  --admin-accent: #e11d48;
+  --badge-bg: #fee2e2;
+  --badge-text: #b91c1c;
+  --border-color: #e2e8f0;
+  --radius-md: 10px;
+  --radius-full: 999px;
+}
+
+/* Sidebar Styles */
+.sidebar--admin { 
+  background-color: var(--admin-bg); 
+}
+
+.sidebar--admin .nav-link.active,
+.sidebar--admin .brand-icon { 
+  background-color: var(--admin-accent);
+  transition: background-color 0.2s ease;
+}
+
+/* Admin Badge - Improved spacing and readability */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--badge-bg);
+  color: var(--badge-text);
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Proof Image - Added subtle shadow for depth */
+.proof-img {
+  display: block;
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Action Bar - Clean alignment */
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}

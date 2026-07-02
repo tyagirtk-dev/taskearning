@@ -1,0 +1,94 @@
+"""
+app/__init__.py – Application factory.
+All extensions are initialised here; blueprints are registered once the app
+object exists so circular imports are avoided.
+"""
+
+import os
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from flask_mail import Mail
+from flask_wtf.csrf import CSRFProtect
+from flask_migrate import Migrate
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+# ── Extension singletons (no app bound yet) ───────────────────────────────────
+db = SQLAlchemy()
+login_manager = LoginManager()
+mail = Mail()
+csrf = CSRFProtect()
+migrate = Migrate()
+limiter = Limiter(key_func=get_remote_address)
+
+
+def create_app(config_name: str = "default") -> Flask:
+    """Factory that builds and returns the configured Flask application."""
+
+    from config import config as config_map
+
+    app = Flask(__name__, template_folder="templates", static_folder="static")
+    app.config.from_object(config_map[config_name])
+
+    # Ensure upload directories exist
+    _ensure_upload_dirs(app)
+
+    # ── Bind extensions ───────────────────────────────────────────────────────
+    db.init_app(app)
+    login_manager.init_app(app)
+    mail.init_app(app)
+    csrf.init_app(app)
+    migrate.init_app(app, db)
+    limiter.init_app(app)
+
+    # ── Login manager config ──────────────────────────────────────────────────
+    login_manager.login_view = "auth.login"
+    login_manager.login_message = "Please log in to access this page."
+    login_manager.login_message_category = "warning"
+
+    # ── Register blueprints ───────────────────────────────────────────────────
+    from app.auth import auth_bp
+    from app.user import user_bp
+    from app.admin import admin_bp
+    from app.main import main_bp
+
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(user_bp, url_prefix="/dashboard")
+    app.register_blueprint(admin_bp, url_prefix="/admin")
+
+    # ── Shell context for `flask shell` ──────────────────────────────────────
+    with app.app_context():
+        from app import models  # noqa: F401 – registers models with SQLAlchemy
+        db.create_all()
+        _seed_admin(app)
+
+    return app
+
+
+def _ensure_upload_dirs(app: Flask) -> None:
+    """Create upload sub-directories if they don't already exist."""
+    base = app.config["UPLOAD_FOLDER"]
+    for sub in ("profiles", "proofs"):
+        path = os.path.join(base, sub)
+        os.makedirs(path, exist_ok=True)
+
+
+def _seed_admin(app: Flask) -> None:
+    """Create the initial superadmin account if none exists."""
+    from app.models import Admin
+    from werkzeug.security import generate_password_hash
+
+    if Admin.query.first():
+        return
+
+    admin = Admin(
+        name=app.config["ADMIN_NAME"],
+        email=app.config["ADMIN_EMAIL"],
+        password_hash=generate_password_hash(app.config["ADMIN_PASSWORD"]),
+        is_super_admin=True,
+    )
+    db.session.add(admin)
+    db.session.commit()
+    print(f"[TaskEarner] Superadmin created: {app.config['ADMIN_EMAIL']}")

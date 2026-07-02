@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>body{margin:0;padding:0;background:#f1f5f9;font-family:Arial,sans-serif;color:#1e293b}.wrapper{max-width:540px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.header{background:linear-gradient(135deg,#059669,#10b981);padding:32px;text-align:center}.body{padding:32px}.footer{background:#f8fafc;padding:20px 32px;text-align:center;color:#94a3b8;font-size:12px}.reward{background:#d1fae5;border-radius:12px;padding:16px;text-align:center;margin:20px 0}</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="header"><h1 style="margin:0;color:#fff;font-size:22px;font-weight:700">✅ Task Approved!</h1></div>
+  <div class="body">
+    <p>Hi <strong>{{ user.name }}</strong>,</p>
+    <p>Great news! Your submission for <strong>"{{ submission.task.title }}"</strong> has been approved.</p>
+    <div class="reward">
+      <p style="margin:0 0 4px;color:#065f46;font-size:13px">Credited to your wallet</p>
+      <div style="font-size:32px;font-weight:800;color:#059669">₹{{ '%.2f'|format(submission.reward_paid) }}</div>
+    </div>
+    <p>Keep completing tasks to earn more! Your wallet balance has been updated.</p>
+    <p style="text-align:center"><a href="{{ config.BASE_URL }}/dashboard/wallet" style="background:#4f46e5;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View Wallet →</a></p>
+  </div>
+  <div class="footer">© TaskEarner &nbsp;·&nbsp; Do not reply to this email</div>
+</div>
+</body></html>

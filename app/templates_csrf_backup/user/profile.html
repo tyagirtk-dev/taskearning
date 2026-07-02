@@ -1,0 +1,77 @@
+{% extends "user/base_user.html" %}
+{% block title %}My Profile – {{ config.APP_NAME }}{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4 mt-1">
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm text-center p-4">
+      <div class="position-relative d-inline-block mx-auto mb-3">
+        <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}"
+             class="rounded-circle" style="width:100px;height:100px;object-fit:cover;border:3px solid #e0e7ff"
+             onerror="this.src='{{ url_for('static', filename='img/default.png') }}'">
+      </div>
+      <h5 class="fw-bold mb-0">{{ current_user.name }}</h5>
+      <p class="text-muted small mb-3">{{ current_user.email }}</p>
+      <div class="d-flex justify-content-around text-center border-top pt-3">
+        <div><div class="fw-bold text-primary">{{ current_user.completed_tasks }}</div><div class="text-muted" style="font-size:.75rem">Completed</div></div>
+        <div><div class="fw-bold text-success">₹{{ '%.2f'|format(current_user.total_earned) }}</div><div class="text-muted" style="font-size:.75rem">Total Earned</div></div>
+        <div><div class="fw-bold text-purple">{{ current_user.referral_count }}</div><div class="text-muted" style="font-size:.75rem">Referrals</div></div>
+      </div>
+      <div class="mt-3 border-top pt-3">
+        <div class="text-muted small mb-1">Your Referral Code</div>
+        <div class="d-flex align-items-center gap-2 justify-content-center">
+          <code id="refCode" class="fs-5 fw-bold text-primary">{{ current_user.referral_code }}</code>
+          <button class="btn btn-sm btn-outline-primary" data-copy="#refCode"><i class="bi bi-copy"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="card border-0 shadow-sm mt-4 p-3">
+      <a href="{{ url_for('user.change_password') }}" class="btn btn-outline-secondary w-100">
+        <i class="bi bi-lock me-1"></i>Change Password
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-transparent border-0 pt-4 px-4">
+        <h6 class="fw-semibold mb-0">Edit Profile</h6>
+      </div>
+      <div class="card-body px-4 pb-4">
+        <form method="POST">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}" enctype="multipart/form-data" novalidate>
+          {{ form.hidden_tag() }}
+          <div class="mb-3">
+            {{ form.name.label(class="form-label fw-medium") }}
+            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+            {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.email.label(class="form-label fw-medium") }}
+            {{ form.email(class="form-control", readonly=True) }}
+            <div class="form-text">Email cannot be changed.</div>
+          </div>
+          <div class="mb-3">
+            {{ form.phone.label(class="form-label fw-medium") }}
+            {{ form.phone(class="form-control", placeholder="+91 98765 43210") }}
+          </div>
+          <div class="mb-3">
+            {{ form.bio.label(class="form-label fw-medium") }}
+            {{ form.bio(class="form-control", rows=3, placeholder="Tell us a bit about yourself…") }}
+          </div>
+          <div class="mb-4">
+            {{ form.profile_pic.label(class="form-label fw-medium") }}
+            {{ form.profile_pic(class="form-control") }}
+            <div class="form-text">JPG, PNG, GIF or WebP. Max 5 MB.</div>
+            {% for e in form.profile_pic.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check2 me-1"></i>Save Changes
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

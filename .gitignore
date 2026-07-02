@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env
+
+# Flask / SQLite
+instance/
+*.db
+*.sqlite3
+
+# Uploads (user content)
+app/static/uploads/profiles/*
+app/static/uploads/proofs/*
+!app/static/uploads/profiles/.gitkeep
+!app/static/uploads/proofs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,55 @@
+{% extends "user/base_user.html" %}
+{% block title %}Withdrawal History – {{ config.APP_NAME }}{% endblock %}
+{% block page_title %}Withdrawal History{% endblock %}
+
+{% block content %}
+<div class="mt-2">
+  {% if withdrawals %}
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">#</th>
+            <th>Amount</th>
+            <th>UPI ID</th>
+            <th>Status</th>
+            <th>Ref</th>
+            <th>Requested</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for wd in withdrawals %}
+          <tr>
+            <td class="ps-4 text-muted small">{{ wd.id }}</td>
+            <td class="fw-semibold">₹{{ '%.2f'|format(wd.amount) }}</td>
+            <td class="text-muted small">{{ wd.upi_id }}</td>
+            <td>
+              <span class="badge rounded-pill
+                {% if wd.status == 'approved' %}bg-success
+                {% elif wd.status == 'rejected' %}bg-danger
+                {% else %}bg-warning text-dark{% endif %}">
+                {{ wd.status | capitalize }}
+              </span>
+            </td>
+            <td class="text-muted small">{{ wd.transaction_ref or '—' }}</td>
+            <td class="text-muted small">{{ wd.requested_at.strftime('%d %b %Y') }}</td>
+          </tr>
+          {% if wd.rejection_reason %}
+          <tr class="table-danger"><td colspan="6" class="ps-4 small text-danger">
+            <i class="bi bi-exclamation-triangle me-1"></i>{{ wd.rejection_reason }}
+          </td></tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-cash-stack fs-1 d-block mb-3 opacity-40"></i>
+    No withdrawal requests yet. <a href="{{ url_for('user.withdraw') }}">Make your first withdrawal</a>.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

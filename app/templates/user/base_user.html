@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block sidebar_menu %}
+<ul class="nav-list">
+  <li class="nav-item">
+    <a href="{{ url_for('user.dashboard') }}" class="nav-link {% if request.endpoint == 'user.dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-fill nav-icon"></i>
+      <span>Dashboard</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="{{ url_for('user.tasks') }}" class="nav-link {% if 'task' in request.endpoint %}active{% endif %}">
+      <i class="bi bi-list-task nav-icon"></i>
+      <span>Browse Tasks</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="{{ url_for('user.my_submissions') }}" class="nav-link {% if request.endpoint == 'user.my_submissions' %}active{% endif %}">
+      <i class="bi bi-send-check-fill nav-icon"></i>
+      <span>My Submissions</span>
+    </a>
+  </li>
+
+  <li class="nav-divider"><span>Finance</span></li>
+
+  <li class="nav-item">
+    <a href="{{ url_for('user.wallet') }}" class="nav-link {% if request.endpoint == 'user.wallet' %}active{% endif %}">
+      <i class="bi bi-wallet2 nav-icon"></i>
+      <span>Wallet</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="{{ url_for('user.withdraw') }}" class="nav-link {% if 'withdraw' in request.endpoint %}active{% endif %}">
+      <i class="bi bi-cash-stack nav-icon"></i>
+      <span>Withdraw</span>
+    </a>
+  </li>
+
+  <li class="nav-divider"><span>Account</span></li>
+
+  <li class="nav-item">
+    <a href="{{ url_for('user.referral') }}" class="nav-link {% if request.endpoint == 'user.referral' %}active{% endif %}">
+      <i class="bi bi-people-fill nav-icon"></i>
+      <span>Referrals</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="{{ url_for('user.profile') }}" class="nav-link {% if request.endpoint == 'user.profile' %}active{% endif %}">
+      <i class="bi bi-person-fill nav-icon"></i>
+      <span>Profile</span>
+    </a>
+  </li>
+  <li class="nav-item">
+    <a href="{{ url_for('auth.logout') }}" class="nav-link nav-logout">
+      <i class="bi bi-box-arrow-right nav-icon"></i>
+      <span>Sign Out</span>
+    </a>
+  </li>
+</ul>
+
+<!-- User mini-profile -->
+<div class="sidebar-profile mt-auto">
+  <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}"
+       alt="Profile" class="sidebar-avatar" onerror="this.src='{{ url_for('static', filename='img/default.png') }}'">
+  <div class="sidebar-profile-info">
+    <div class="sidebar-profile-name">{{ current_user.name }}</div>
+    <div class="sidebar-profile-balance">₹{{ '%.2f'|format(current_user.wallet_balance) }}</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block topbar_right %}
+<div class="d-flex align-items-center gap-3">
+  <div class="wallet-badge">
+    <i class="bi bi-wallet2"></i>
+    <span>₹{{ '%.2f'|format(current_user.wallet_balance) }}</span>
+  </div>
+  <a href="{{ url_for('user.profile') }}" class="topbar-avatar-link">
+    <img src="{{ url_for('static', filename='uploads/profiles/' + current_user.profile_pic) }}"
+         alt="Avatar" class="topbar-avatar" onerror="this.src='{{ url_for('static', filename='img/default.png') }}'">
+  </a>
+</div>
+{% endblock %}
