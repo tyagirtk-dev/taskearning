@@ -102,7 +102,7 @@ taskearner/
 
 ### 1 — Clone & enter the directory
 ```bash
-git clone <repo-url>
+git clone https://github.com/tyagirtk-dev/taskearning.git
 cd taskearner
 ```
 
@@ -150,7 +150,7 @@ pkg update && pkg upgrade -y
 pkg install python git -y
 pip install --upgrade pip
 
-git clone <repo-url>
+git clone https://github.com/tyagirtk-dev/taskearning.git
 cd taskearner
 pip install -r requirements.txt
 cp .env.example .env
